@@ -13,96 +13,112 @@
         }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #000000 0%, #1a0033 100%);
-            color: #00ff00;
+            font-family: 'Comic Sans MS', 'Trebuchet MS', Arial, sans-serif;
+            background: #000080;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.03) 2px, rgba(255,255,255,.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,.03) 2px, rgba(255,255,255,.03) 4px);
+            color: #ffff00;
             min-height: 100vh;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .container {
             max-width: 900px;
-            width: 100%;
+            margin: 0 auto;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             padding: 20px;
-            border: 2px solid #00ff00;
-            background: rgba(0, 255, 0, 0.05);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            border: 3px ridge #c0c0c0;
+            background: linear-gradient(180deg, #0000ff 0%, #000080 100%);
+            box-shadow: 5px 5px 0px #000000;
         }
 
         h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 0 0 10px #00ff00;
-            animation: glow 2s ease-in-out infinite alternate;
+            color: #00ff00;
+            text-shadow: 2px 2px #ff00ff, 4px 4px #00ffff;
+            letter-spacing: 2px;
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; }
-            to { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; }
+        .blink {
+            animation: blink 1s steps(2, start) infinite;
+        }
+
+        @keyframes blink {
+            to { visibility: hidden; }
         }
 
         .subtitle {
-            color: #00dddd;
+            color: #00ffff;
             font-size: 1.1em;
             margin-top: 10px;
         }
 
+        .subtitle a {
+            color: #ff00ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .subtitle a:hover {
+            text-decoration: underline;
+            color: #ffff00;
+        }
+
         .tracker-container {
-            border: 2px solid #00ff00;
+            border: 3px ridge #c0c0c0;
             padding: 30px;
-            background: rgba(0, 20, 0, 0.8);
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+            background: #008080;
+            box-shadow: 5px 5px 0px #000000;
             margin-bottom: 20px;
         }
 
         .status-bar {
             padding: 15px;
             margin-bottom: 20px;
-            border-left: 4px solid #ffff00;
-            background: rgba(255, 255, 0, 0.1);
+            border: 2px solid #ffff00;
+            background: #000080;
+            font-weight: bold;
+            text-align: center;
         }
 
         .status-bar.loading {
-            border-left-color: #00ddff;
-            background: rgba(0, 221, 255, 0.1);
+            border-color: #00ffff;
+            background: #000066;
+            color: #00ffff;
         }
 
         .status-bar.error {
-            border-left-color: #ff0000;
-            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+            background: #660000;
             color: #ff6666;
         }
 
         .status-bar.success {
-            border-left-color: #00ff00;
-            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+            background: #006600;
+            color: #00ff00;
         }
 
         .flight-card {
-            border: 1px solid #00ff00;
+            border: 3px groove #c0c0c0;
             padding: 20px;
             margin: 20px 0;
-            background: rgba(0, 50, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .flight-card:hover {
-            background: rgba(0, 80, 0, 0.4);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            background: linear-gradient(180deg, #ffffff 0%, #c0c0c0 100%);
+            color: #000000;
+            box-shadow: 3px 3px 0px #000000;
         }
 
         .flight-card h3 {
-            color: #00ffff;
+            color: #000080;
             margin-bottom: 15px;
-            font-size: 1.3em;
+            font-size: 1.4em;
+            text-decoration: underline;
         }
 
         .info-row {
@@ -111,126 +127,123 @@
         }
 
         .info-label {
-            color: #ffff00;
+            color: #800080;
             display: inline-block;
             width: 140px;
+            font-weight: bold;
         }
 
         .info-value {
-            color: #00ff00;
+            color: #000000;
+            font-weight: bold;
         }
 
         .flight-status {
             display: inline-block;
             padding: 5px 15px;
-            border-radius: 3px;
+            border: 2px solid #000000;
             font-weight: bold;
         }
 
         .flight-status.airborne {
-            background: rgba(0, 255, 255, 0.2);
-            color: #00ffff;
-            border: 1px solid #00ffff;
+            background: #00ff00;
+            color: #000000;
         }
 
         .flight-status.grounded {
-            background: rgba(255, 255, 0, 0.2);
-            color: #ffff00;
-            border: 1px solid #ffff00;
+            background: #ffff00;
+            color: #000000;
         }
 
         .controls {
-            display: flex;
-            gap: 15px;
+            text-align: center;
             margin-top: 25px;
-            flex-wrap: wrap;
         }
 
         button {
-            background: #00ff00;
-            color: #000;
-            border: none;
-            padding: 12px 25px;
-            font-family: 'Courier New', monospace;
-            font-size: 1em;
+            background: linear-gradient(180deg, #ffffff 0%, #c0c0c0 100%);
+            color: #000000;
+            border: 3px outset #c0c0c0;
+            padding: 12px 30px;
+            font-family: 'Comic Sans MS', Arial, sans-serif;
+            font-size: 1.1em;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            box-shadow: 3px 3px 0px #000000;
         }
 
         button:hover {
-            background: #00ff00;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
-            transform: translateY(-2px);
+            background: linear-gradient(180deg, #ffff00 0%, #ffcc00 100%);
         }
 
         button:active {
-            transform: translateY(0);
-        }
-
-        button.secondary {
-            background: #00dddd;
-        }
-
-        button.secondary:hover {
-            background: #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            border-style: inset;
+            box-shadow: 1px 1px 0px #000000;
+            transform: translate(2px, 2px);
         }
 
         .map-link {
-            color: #00ddff;
-            text-decoration: none;
-            border-bottom: 1px dotted #00ddff;
-            transition: all 0.3s ease;
+            color: #0000ff;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .map-link:visited {
+            color: #800080;
         }
 
         .map-link:hover {
-            color: #00ffff;
-            border-bottom-style: solid;
+            color: #ff0000;
         }
 
         .last-update {
             text-align: center;
-            color: #888;
+            color: #ffff00;
             font-size: 0.9em;
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid #333;
+            border-top: 2px dashed #ffff00;
+            font-weight: bold;
         }
 
         .no-flights {
             text-align: center;
             padding: 40px;
-            color: #888;
+            color: #000000;
             font-style: italic;
+            background: #ffff00;
+            border: 3px dashed #ff0000;
+            font-weight: bold;
         }
 
         footer {
             text-align: center;
             margin-top: 40px;
             padding: 20px;
-            color: #666;
+            color: #00ffff;
             font-size: 0.9em;
+            border-top: 2px solid #00ffff;
         }
 
         footer a {
             color: #00ff00;
             text-decoration: none;
+            font-weight: bold;
         }
 
         footer a:hover {
-            color: #00ffff;
+            color: #ffff00;
+            text-decoration: underline;
         }
 
-        .plane-icon {
-            display: inline-block;
-            animation: fly 3s ease-in-out infinite;
+        .under-construction {
+            text-align: center;
+            margin: 20px 0;
         }
 
-        @keyframes fly {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+        .under-construction img {
+            width: 100px;
+            image-rendering: pixelated;
         }
 
         @media (max-width: 600px) {
@@ -244,25 +257,36 @@
                 margin-bottom: 5px;
             }
 
-            .controls {
-                flex-direction: column;
-            }
-
             button {
                 width: 100%;
             }
+        }
+
+        marquee {
+            background: #ff0000;
+            color: #ffff00;
+            padding: 10px;
+            margin: 20px 0;
+            border: 2px solid #000000;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><span class="plane-icon">✈️</span> WHERE'S ELON? <span class="plane-icon">✈️</span></h1>
-            <div class="subtitle">Live tracking of private jet locations using public flight data</div>
-            <div class="subtitle" style="font-size: 0.9em; margin-top: 5px; color: #888;">
-                Powered by OpenSky Network | <a href="https://imcringe.com" style="color: #00ff00;">imcringe.com</a>
+            <h1>🛩️ WHERE'S ELON? 🛩️</h1>
+            <div class="subtitle">
+                <span class="blink">⚠️ LIVE ⚠️</span> Flight Tracker
+            </div>
+            <div class="subtitle" style="font-size: 0.9em; margin-top: 10px;">
+                <a href="https://imcringe.com">imcringe.com</a> | Est. 2024
             </div>
         </header>
+
+        <marquee behavior="scroll" direction="left">
+            ☺ REAL-TIME FLIGHT DATA ☺ UPDATED FROM PUBLIC ADS-B TRANSMISSIONS ☺ ALL DATA IS LEGALLY AVAILABLE VIA FAA ☺
+        </marquee>
 
         <div class="tracker-container">
             <div id="status" class="status-bar loading">
@@ -272,34 +296,36 @@
             <div id="flights"></div>
 
             <div class="controls">
-                <button onclick="refreshData()">🔄 Refresh Data</button>
-                <button class="secondary" onclick="toggleAutoRefresh()">⏱️ Toggle Auto-Refresh</button>
+                <button onclick="refreshData()">🔄 REFRESH DATA</button>
             </div>
 
             <div class="last-update" id="lastUpdate"></div>
         </div>
 
         <footer>
-            <p>Data provided by <a href="https://opensky-network.org" target="_blank">OpenSky Network</a></p>
+            <p>⚡ Powered by <a href="https://opensky-network.org" target="_blank">OpenSky Network</a> ⚡</p>
             <p style="margin-top: 10px;">All flight data is publicly available via FAA/ADS-B transmissions</p>
-            <p style="margin-top: 10px; font-size: 0.8em;">Note: Aircraft registrations may change. Data accuracy not guaranteed.</p>
+            <p style="margin-top: 10px; font-size: 0.8em;">
+                <span class="blink">★</span> Best viewed in Netscape Navigator <span class="blink">★</span>
+            </p>
         </footer>
     </div>
 
     <script>
-        // Known aircraft ICAO24 codes (hex codes)
-        // Note: These codes may become outdated as aircraft registrations change
+        // Known aircraft ICAO24 codes
         const AIRCRAFT = [
+            { 
+                icao24: 'a03d2e', 
+                name: 'Private Jet',
+                registration: 'TBD'
+            },
             { 
                 icao24: 'a835af', 
                 name: 'Gulfstream G650ER',
                 registration: 'N628TS'
             },
-            // Add more aircraft codes as they become known
+            // Add more as you find them
         ];
-
-        let autoRefreshInterval = null;
-        let isAutoRefreshEnabled = false;
 
         async function refreshData() {
             const statusEl = document.getElementById('status');
@@ -312,15 +338,20 @@
 
             try {
                 let foundFlights = false;
+                let recentFlights = [];
 
                 for (const aircraft of AIRCRAFT) {
-                    const url = `https://opensky-network.org/api/states/all?icao24=${aircraft.icao24}`;
+                    // Using alternative CORS proxy
+                    const apiUrl = `https://opensky-network.org/api/states/all?icao24=${aircraft.icao24}`;
+                    const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
                     
                     try {
                         const response = await fetch(url);
                         
                         if (!response.ok) {
                             console.error(`HTTP ${response.status} for ${aircraft.icao24}`);
+                            // Try to get historical data
+                            await fetchRecentFlight(aircraft, recentFlights);
                             continue;
                         }
 
@@ -346,35 +377,87 @@
                                 onGround: on_ground,
                                 lastContact: last_contact,
                                 verticalRate: vertical_rate,
-                                heading: true_track
+                                heading: true_track,
+                                isHistorical: false
                             });
 
                             flightsEl.innerHTML += flightCard;
+                        } else {
+                            // No current flight, try to get historical
+                            await fetchRecentFlight(aircraft, recentFlights);
                         }
                     } catch (error) {
                         console.error(`Error fetching ${aircraft.icao24}:`, error);
+                        await fetchRecentFlight(aircraft, recentFlights);
                     }
 
-                    // Rate limiting delay
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
                 if (foundFlights) {
                     statusEl.className = 'status-bar success';
-                    statusEl.innerHTML = '✅ Live flight data loaded successfully';
+                    statusEl.innerHTML = '✅ LIVE FLIGHT DATA LOADED!';
+                } else if (recentFlights.length > 0) {
+                    statusEl.className = 'status-bar';
+                    statusEl.innerHTML = '⚠️ NO ACTIVE FLIGHTS - SHOWING MOST RECENT DATA';
+                    // Display the most recent flight
+                    flightsEl.innerHTML = recentFlights[0];
                 } else {
                     statusEl.className = 'status-bar';
-                    statusEl.innerHTML = '⚠️ No active flights detected';
-                    flightsEl.innerHTML = '<div class="no-flights">All tracked aircraft appear to be grounded or data is temporarily unavailable.</div>';
+                    statusEl.innerHTML = '⚠️ NO FLIGHT DATA AVAILABLE';
+                    flightsEl.innerHTML = '<div class="no-flights">No current or recent flight data available for tracked aircraft.</div>';
                 }
 
-                updateEl.innerHTML = `Last updated: ${new Date().toLocaleString()}`;
+                updateEl.innerHTML = `⏰ Last updated: ${new Date().toLocaleString()} ⏰`;
 
             } catch (error) {
                 statusEl.className = 'status-bar error';
-                statusEl.innerHTML = `❌ Error: ${error.message}`;
+                statusEl.innerHTML = `❌ ERROR: ${error.message}`;
                 flightsEl.innerHTML = '<div class="no-flights">Unable to fetch flight data. Please try again later.</div>';
                 updateEl.innerHTML = `Last attempt: ${new Date().toLocaleString()}`;
+            }
+        }
+
+        async function fetchRecentFlight(aircraft, recentFlights) {
+            try {
+                // OpenSky historical data API - get flights from last 24 hours
+                const end = Math.floor(Date.now() / 1000);
+                const begin = end - 86400; // 24 hours ago
+                const apiUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${aircraft.icao24}&begin=${begin}&end=${end}`;
+                const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+                
+                const response = await fetch(url);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data && data.length > 0) {
+                        // Get the most recent flight
+                        const recentFlight = data[data.length - 1];
+                        
+                        const flightCard = createFlightCard({
+                            aircraft,
+                            callsign: recentFlight.callsign ? recentFlight.callsign.trim() : 'N/A',
+                            latitude: null,
+                            longitude: null,
+                            altitude: null,
+                            velocity: null,
+                            onGround: true,
+                            lastContact: recentFlight.lastSeen,
+                            verticalRate: null,
+                            heading: null,
+                            isHistorical: true,
+                            departureAirport: recentFlight.estDepartureAirport || 'Unknown',
+                            arrivalAirport: recentFlight.estArrivalAirport || 'Unknown',
+                            firstSeen: recentFlight.firstSeen,
+                            lastSeen: recentFlight.lastSeen
+                        });
+                        
+                        recentFlights.push(flightCard);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching historical data for ${aircraft.icao24}:`, error);
             }
         }
 
@@ -389,6 +472,63 @@
             const statusClass = flight.onGround ? 'grounded' : 'airborne';
             const statusIcon = flight.onGround ? '🛬' : '✈️';
             const statusText = flight.onGround ? 'ON GROUND' : 'IN FLIGHT';
+
+            if (flight.isHistorical) {
+                const flightDate = new Date(flight.lastSeen * 1000);
+                const duration = flight.lastSeen - flight.firstSeen;
+                const hours = Math.floor(duration / 3600);
+                const minutes = Math.floor((duration % 3600) / 60);
+                
+                return `
+                    <div class="flight-card">
+                        <h3>${flight.aircraft.name} (${flight.aircraft.registration})</h3>
+                        <div style="background: #ffff00; padding: 10px; margin-bottom: 15px; border: 2px dashed #000000; text-align: center;">
+                            <strong>⚠️ HISTORICAL DATA - MOST RECENT FLIGHT ⚠️</strong>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="flight-status grounded">🛬 ON GROUND</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Callsign:</span>
+                            <span class="info-value">${flight.callsign}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Last Flight:</span>
+                            <span class="info-value">${flightDate.toLocaleString()}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Flight Duration:</span>
+                            <span class="info-value">${hours}h ${minutes}m</span>
+                        </div>
+
+                        ${flight.departureAirport !== 'Unknown' ? `
+                        <div class="info-row">
+                            <span class="info-label">Departure:</span>
+                            <span class="info-value">${flight.departureAirport}</span>
+                        </div>
+                        ` : ''}
+
+                        ${flight.arrivalAirport !== 'Unknown' ? `
+                        <div class="info-row">
+                            <span class="info-label">Arrival:</span>
+                            <span class="info-value">${flight.arrivalAirport}</span>
+                        </div>
+                        ` : ''}
+
+                        ${timeSince ? `
+                        <div class="info-row">
+                            <span class="info-label">Time Since:</span>
+                            <span class="info-value">${Math.floor(timeSince / 3600)} hours ago</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
 
             return `
                 <div class="flight-card">
@@ -452,27 +592,12 @@
                         <a href="https://www.google.com/maps?q=${flight.latitude},${flight.longitude}" 
                            target="_blank" 
                            class="map-link">
-                           📍 View on Google Maps
+                           📍 Click here to view on Google Maps!
                         </a>
                     </div>
                     ` : ''}
                 </div>
             `;
-        }
-
-        function toggleAutoRefresh() {
-            isAutoRefreshEnabled = !isAutoRefreshEnabled;
-
-            if (isAutoRefreshEnabled) {
-                autoRefreshInterval = setInterval(refreshData, 30000); // 30 seconds
-                alert('✅ Auto-refresh enabled! Data will update every 30 seconds.');
-            } else {
-                if (autoRefreshInterval) {
-                    clearInterval(autoRefreshInterval);
-                    autoRefreshInterval = null;
-                }
-                alert('⏸️ Auto-refresh disabled.');
-            }
         }
 
         // Initial load
