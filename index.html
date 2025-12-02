@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>where's elon? | imcringe.com</title>
+    <meta name="description" content="Live tracking of Elon Musk's private jets using public flight data">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #000000 0%, #1a0033 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff00;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; }
+            to { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; }
+        }
+
+        .subtitle {
+            color: #00dddd;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .tracker-container {
+            border: 2px solid #00ff00;
+            padding: 30px;
+            background: rgba(0, 20, 0, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffff00;
+            background: rgba(255, 255, 0, 0.1);
+        }
+
+        .status-bar.loading {
+            border-left-color: #00ddff;
+            background: rgba(0, 221, 255, 0.1);
+        }
+
+        .status-bar.error {
+            border-left-color: #ff0000;
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff6666;
+        }
+
+        .status-bar.success {
+            border-left-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .flight-card {
+            border: 1px solid #00ff00;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(0, 50, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .flight-card:hover {
+            background: rgba(0, 80, 0, 0.4);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .flight-card h3 {
+            color: #00ffff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-row {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .info-label {
+            color: #ffff00;
+            display: inline-block;
+            width: 140px;
+        }
+
+        .info-value {
+            color: #00ff00;
+        }
+
+        .flight-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .flight-status.airborne {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            border: 1px solid #00ffff;
+        }
+
+        .flight-status.grounded {
+            background: rgba(255, 255, 0, 0.2);
+            color: #ffff00;
+            border: 1px solid #ffff00;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        button:hover {
+            background: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #00dddd;
+        }
+
+        button.secondary:hover {
+            background: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+
+        .map-link {
+            color: #00ddff;
+            text-decoration: none;
+            border-bottom: 1px dotted #00ddff;
+            transition: all 0.3s ease;
+        }
+
+        .map-link:hover {
+            color: #00ffff;
+            border-bottom-style: solid;
+        }
+
+        .last-update {
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+
+        .no-flights {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #00ffff;
+        }
+
+        .plane-icon {
+            display: inline-block;
+            animation: fly 3s ease-in-out infinite;
+        }
+
+        @keyframes fly {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .info-label {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="plane-icon">✈️</span> WHERE'S ELON? <span class="plane-icon">✈️</span></h1>
+            <div class="subtitle">Live tracking of private jet locations using public flight data</div>
+            <div class="subtitle" style="font-size: 0.9em; margin-top: 5px; color: #888;">
+                Powered by OpenSky Network | <a href="https://imcringe.com" style="color: #00ff00;">imcringe.com</a>
+            </div>
+        </header>
+
+        <div class="tracker-container">
+            <div id="status" class="status-bar loading">
+                🔄 Initializing flight tracker...
+            </div>
+
+            <div id="flights"></div>
+
+            <div class="controls">
+                <button onclick="refreshData()">🔄 Refresh Data</button>
+                <button class="secondary" onclick="toggleAutoRefresh()">⏱️ Toggle Auto-Refresh</button>
+            </div>
+
+            <div class="last-update" id="lastUpdate"></div>
+        </div>
+
+        <footer>
+            <p>Data provided by <a href="https://opensky-network.org" target="_blank">OpenSky Network</a></p>
+            <p style="margin-top: 10px;">All flight data is publicly available via FAA/ADS-B transmissions</p>
+            <p style="margin-top: 10px; font-size: 0.8em;">Note: Aircraft registrations may change. Data accuracy not guaranteed.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Known aircraft ICAO24 codes (hex codes)
+        // Note: These codes may become outdated as aircraft registrations change
+        const AIRCRAFT = [
+            { 
+                icao24: 'a835af', 
+                name: 'Gulfstream G650ER',
+                registration: 'N628TS'
+            },
+            // Add more aircraft codes as they become known
+        ];
+
+        let autoRefreshInterval = null;
+        let isAutoRefreshEnabled = false;
+
+        async function refreshData() {
+            const statusEl = document.getElementById('status');
+            const flightsEl = document.getElementById('flights');
+            const updateEl = document.getElementById('lastUpdate');
+
+            statusEl.className = 'status-bar loading';
+            statusEl.innerHTML = '🔄 Fetching live flight data...';
+            flightsEl.innerHTML = '';
+
+            try {
+                let foundFlights = false;
+
+                for (const aircraft of AIRCRAFT) {
+                    const url = `https://opensky-network.org/api/states/all?icao24=${aircraft.icao24}`;
+                    
+                    try {
+                        const response = await fetch(url);
+                        
+                        if (!response.ok) {
+                            console.error(`HTTP ${response.status} for ${aircraft.icao24}`);
+                            continue;
+                        }
+
+                        const data = await response.json();
+
+                        if (data.states && data.states.length > 0) {
+                            foundFlights = true;
+                            const state = data.states[0];
+                            
+                            const [
+                                icao24, callsign, origin_country, time_position,
+                                last_contact, longitude, latitude, baro_altitude,
+                                on_ground, velocity, true_track, vertical_rate
+                            ] = state;
+
+                            const flightCard = createFlightCard({
+                                aircraft,
+                                callsign: callsign ? callsign.trim() : 'N/A',
+                                latitude,
+                                longitude,
+                                altitude: baro_altitude,
+                                velocity,
+                                onGround: on_ground,
+                                lastContact: last_contact,
+                                verticalRate: vertical_rate,
+                                heading: true_track
+                            });
+
+                            flightsEl.innerHTML += flightCard;
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching ${aircraft.icao24}:`, error);
+                    }
+
+                    // Rate limiting delay
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                if (foundFlights) {
+                    statusEl.className = 'status-bar success';
+                    statusEl.innerHTML = '✅ Live flight data loaded successfully';
+                } else {
+                    statusEl.className = 'status-bar';
+                    statusEl.innerHTML = '⚠️ No active flights detected';
+                    flightsEl.innerHTML = '<div class="no-flights">All tracked aircraft appear to be grounded or data is temporarily unavailable.</div>';
+                }
+
+                updateEl.innerHTML = `Last updated: ${new Date().toLocaleString()}`;
+
+            } catch (error) {
+                statusEl.className = 'status-bar error';
+                statusEl.innerHTML = `❌ Error: ${error.message}`;
+                flightsEl.innerHTML = '<div class="no-flights">Unable to fetch flight data. Please try again later.</div>';
+                updateEl.innerHTML = `Last attempt: ${new Date().toLocaleString()}`;
+            }
+        }
+
+        function createFlightCard(flight) {
+            const altitudeFeet = flight.altitude ? Math.round(flight.altitude * 3.281) : null;
+            const altitudeMeters = flight.altitude ? Math.round(flight.altitude) : null;
+            const speedKnots = flight.velocity ? Math.round(flight.velocity * 1.944) : null;
+            const speedMph = flight.velocity ? Math.round(flight.velocity * 2.237) : null;
+            const timeSince = flight.lastContact ? Math.round((Date.now() / 1000) - flight.lastContact) : null;
+            const verticalRateFpm = flight.verticalRate ? Math.round(flight.verticalRate * 196.85) : null;
+
+            const statusClass = flight.onGround ? 'grounded' : 'airborne';
+            const statusIcon = flight.onGround ? '🛬' : '✈️';
+            const statusText = flight.onGround ? 'ON GROUND' : 'IN FLIGHT';
+
+            return `
+                <div class="flight-card">
+                    <h3>${flight.aircraft.name} (${flight.aircraft.registration})</h3>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="flight-status ${statusClass}">${statusIcon} ${statusText}</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label">Callsign:</span>
+                        <span class="info-value">${flight.callsign}</span>
+                    </div>
+
+                    ${flight.latitude && flight.longitude ? `
+                    <div class="info-row">
+                        <span class="info-label">Position:</span>
+                        <span class="info-value">${flight.latitude.toFixed(4)}°, ${flight.longitude.toFixed(4)}°</span>
+                    </div>
+                    ` : ''}
+
+                    ${altitudeFeet ? `
+                    <div class="info-row">
+                        <span class="info-label">Altitude:</span>
+                        <span class="info-value">${altitudeFeet.toLocaleString()} ft (${altitudeMeters.toLocaleString()} m)</span>
+                    </div>
+                    ` : ''}
+
+                    ${speedKnots ? `
+                    <div class="info-row">
+                        <span class="info-label">Speed:</span>
+                        <span class="info-value">${speedKnots} knots (${speedMph} mph)</span>
+                    </div>
+                    ` : ''}
+
+                    ${flight.heading !== null && flight.heading !== undefined ? `
+                    <div class="info-row">
+                        <span class="info-label">Heading:</span>
+                        <span class="info-value">${Math.round(flight.heading)}°</span>
+                    </div>
+                    ` : ''}
+
+                    ${verticalRateFpm && !flight.onGround ? `
+                    <div class="info-row">
+                        <span class="info-label">Vertical Rate:</span>
+                        <span class="info-value">${verticalRateFpm > 0 ? '↑' : '↓'} ${Math.abs(verticalRateFpm)} ft/min</span>
+                    </div>
+                    ` : ''}
+
+                    ${timeSince ? `
+                    <div class="info-row">
+                        <span class="info-label">Last Contact:</span>
+                        <span class="info-value">${timeSince} seconds ago</span>
+                    </div>
+                    ` : ''}
+
+                    ${flight.latitude && flight.longitude ? `
+                    <div class="info-row">
+                        <span class="info-label">Map:</span>
+                        <a href="https://www.google.com/maps?q=${flight.latitude},${flight.longitude}" 
+                           target="_blank" 
+                           class="map-link">
+                           📍 View on Google Maps
+                        </a>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function toggleAutoRefresh() {
+            isAutoRefreshEnabled = !isAutoRefreshEnabled;
+
+            if (isAutoRefreshEnabled) {
+                autoRefreshInterval = setInterval(refreshData, 30000); // 30 seconds
+                alert('✅ Auto-refresh enabled! Data will update every 30 seconds.');
+            } else {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+                alert('⏸️ Auto-refresh disabled.');
+            }
+        }
+
+        // Initial load
+        window.addEventListener('load', () => {
+            refreshData();
+        });
+    </script>
+</body>
+</html>
