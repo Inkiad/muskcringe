@@ -341,49 +341,46 @@
                 let recentFlights = [];
 
                 for (const aircraft of AIRCRAFT) {
-                    // Using alternative CORS proxy
-                    const apiUrl = `https://opensky-network.org/api/states/all?icao24=${aircraft.icao24}`;
-                    const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+                    // Try ADS-B Exchange API first (more open)
+                    const adsbUrl = `https://adsbexchange.com/api/aircraft/icao/${aircraft.icao24}/`;
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(adsbUrl)}`;
                     
                     try {
-                        const response = await fetch(url);
+                        const response = await fetch(proxyUrl);
                         
                         if (!response.ok) {
                             console.error(`HTTP ${response.status} for ${aircraft.icao24}`);
-                            // Try to get historical data
+                            // If ADSB fails, try OpenSky as backup
+                            await tryOpenSky(aircraft, flightsEl, foundFlights);
                             await fetchRecentFlight(aircraft, recentFlights);
                             continue;
                         }
 
                         const data = await response.json();
 
-                        if (data.states && data.states.length > 0) {
+                        // ADSB Exchange data format
+                        if (data && data.ac && data.ac.length > 0) {
                             foundFlights = true;
-                            const state = data.states[0];
+                            const ac = data.ac[0]; // First aircraft in array
                             
-                            const [
-                                icao24, callsign, origin_country, time_position,
-                                last_contact, longitude, latitude, baro_altitude,
-                                on_ground, velocity, true_track, vertical_rate
-                            ] = state;
-
                             const flightCard = createFlightCard({
                                 aircraft,
-                                callsign: callsign ? callsign.trim() : 'N/A',
-                                latitude,
-                                longitude,
-                                altitude: baro_altitude,
-                                velocity,
-                                onGround: on_ground,
-                                lastContact: last_contact,
-                                verticalRate: vertical_rate,
-                                heading: true_track,
+                                callsign: ac.flight ? ac.flight.trim() : 'N/A',
+                                latitude: ac.lat || null,
+                                longitude: ac.lon || null,
+                                altitude: ac.alt_baro, // Already in feet
+                                velocity: ac.gs ? ac.gs / 1.944 : null, // Convert knots to m/s for consistency
+                                onGround: ac.alt_baro === "ground",
+                                lastContact: Math.floor(Date.now() / 1000) - (ac.seen || 0),
+                                verticalRate: ac.baro_rate ? ac.baro_rate / 196.85 : null, // Convert fpm to m/s
+                                heading: ac.track || null,
                                 isHistorical: false
                             });
 
                             flightsEl.innerHTML += flightCard;
                         } else {
-                            // No current flight, try to get historical
+                            // No current flight in ADSB, try OpenSky as backup
+                            await tryOpenSky(aircraft, flightsEl, foundFlights);
                             await fetchRecentFlight(aircraft, recentFlights);
                         }
                     } catch (error) {
@@ -418,53 +415,86 @@
             }
         }
 
-        async function fetchRecentFlight(aircraft, recentFlights) {
+        async function tryOpenSky(aircraft, flightsEl, foundFlights) {
             try {
-                // OpenSky historical data API - get flights from last 7 days (more likely to find data)
-                const end = Math.floor(Date.now() / 1000);
-                const begin = end - (86400 * 7); // 7 days ago instead of 1
-                const apiUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${aircraft.icao24}&begin=${begin}&end=${end}`;
+                const apiUrl = `https://opensky-network.org/api/states/all?icao24=${aircraft.icao24}`;
                 const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
                 
-                console.log(`Fetching historical data for ${aircraft.icao24}...`);
                 const response = await fetch(url);
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(`Historical data for ${aircraft.icao24}:`, data);
                     
-                    if (data && data.length > 0) {
-                        // Get the most recent flight
-                        const recentFlight = data[data.length - 1];
-                        console.log(`Most recent flight:`, recentFlight);
+                    if (data.states && data.states.length > 0) {
+                        foundFlights = true;
+                        const state = data.states[0];
                         
+                        const [
+                            icao24, callsign, origin_country, time_position,
+                            last_contact, longitude, latitude, baro_altitude,
+                            on_ground, velocity, true_track, vertical_rate
+                        ] = state;
+
                         const flightCard = createFlightCard({
                             aircraft,
-                            callsign: recentFlight.callsign ? recentFlight.callsign.trim() : 'N/A',
-                            latitude: null,
-                            longitude: null,
-                            altitude: null,
-                            velocity: null,
-                            onGround: true,
-                            lastContact: recentFlight.lastSeen,
-                            verticalRate: null,
-                            heading: null,
-                            isHistorical: true,
-                            departureAirport: recentFlight.estDepartureAirport || 'Unknown',
-                            arrivalAirport: recentFlight.estArrivalAirport || 'Unknown',
-                            firstSeen: recentFlight.firstSeen,
-                            lastSeen: recentFlight.lastSeen
+                            callsign: callsign ? callsign.trim() : 'N/A',
+                            latitude,
+                            longitude,
+                            altitude: baro_altitude,
+                            velocity,
+                            onGround: on_ground,
+                            lastContact: last_contact,
+                            verticalRate: vertical_rate,
+                            heading: true_track,
+                            isHistorical: false
                         });
-                        
-                        recentFlights.push(flightCard);
-                    } else {
-                        console.log(`No historical flights found for ${aircraft.icao24}`);
+
+                        flightsEl.innerHTML += flightCard;
+                        return true;
                     }
-                } else {
-                    console.error(`HTTP ${response.status} for historical data`);
                 }
             } catch (error) {
-                console.error(`Error fetching historical data for ${aircraft.icao24}:`, error);
+                console.error(`OpenSky backup failed for ${aircraft.icao24}:`, error);
+            }
+            return false;
+        }
+
+        async function fetchRecentFlight(aircraft, recentFlights) {
+            try {
+                // OpenSky historical flight API requires authentication
+                // Instead, we'll store the last known state when we do find an active flight
+                // For now, just show a message that no flights are active
+                console.log(`No historical data available for ${aircraft.icao24} (API requires authentication)`);
+                
+                // Create a placeholder card showing the aircraft is being tracked
+                const flightCard = `
+                    <div class="flight-card">
+                        <h3>${aircraft.name} (${aircraft.registration})</h3>
+                        <div style="background: #ffff00; padding: 10px; margin-bottom: 15px; border: 2px dashed #000000; text-align: center;">
+                            <strong>⚠️ AIRCRAFT CURRENTLY GROUNDED ⚠️</strong>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="flight-status grounded">🛬 NO ACTIVE FLIGHTS</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">ICAO24:</span>
+                            <span class="info-value">${aircraft.icao24.toUpperCase()}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-value" style="font-style: italic;">
+                                This aircraft is being monitored. Data will appear when flight becomes active.
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                recentFlights.push(flightCard);
+            } catch (error) {
+                console.error(`Error in fetchRecentFlight for ${aircraft.icao24}:`, error);
             }
         }
 
