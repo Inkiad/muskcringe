@@ -420,20 +420,23 @@
 
         async function fetchRecentFlight(aircraft, recentFlights) {
             try {
-                // OpenSky historical data API - get flights from last 24 hours
+                // OpenSky historical data API - get flights from last 7 days (more likely to find data)
                 const end = Math.floor(Date.now() / 1000);
-                const begin = end - 86400; // 24 hours ago
+                const begin = end - (86400 * 7); // 7 days ago instead of 1
                 const apiUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${aircraft.icao24}&begin=${begin}&end=${end}`;
                 const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
                 
+                console.log(`Fetching historical data for ${aircraft.icao24}...`);
                 const response = await fetch(url);
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(`Historical data for ${aircraft.icao24}:`, data);
                     
                     if (data && data.length > 0) {
                         // Get the most recent flight
                         const recentFlight = data[data.length - 1];
+                        console.log(`Most recent flight:`, recentFlight);
                         
                         const flightCard = createFlightCard({
                             aircraft,
@@ -454,7 +457,11 @@
                         });
                         
                         recentFlights.push(flightCard);
+                    } else {
+                        console.log(`No historical flights found for ${aircraft.icao24}`);
                     }
+                } else {
+                    console.error(`HTTP ${response.status} for historical data`);
                 }
             } catch (error) {
                 console.error(`Error fetching historical data for ${aircraft.icao24}:`, error);
